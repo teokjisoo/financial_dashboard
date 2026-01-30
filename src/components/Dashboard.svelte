@@ -17,14 +17,9 @@
     loadProducts(false); // 캐시 사용하여 로드
   });
 
-  // 일반 새로고침 (캐시 사용)
+  // 새로고침 (API 재호출)
   function handleRefresh() {
-    loadProducts(false);
-  }
-
-  // 강제 새로고침 (캐시 무시)
-  function handleForceRefresh() {
-    clearCacheAndRefresh();
+    loadProducts(true);
   }
 </script>
 
@@ -34,7 +29,6 @@
     isLoading={$isLoading}
     cacheInfo={$cacheInfo}
     onRefresh={handleRefresh}
-    onForceRefresh={handleForceRefresh}
   />
 
   {#if $loadingStatus}
@@ -76,9 +70,6 @@
     <p class="disclaimer">
       ※ 투자 추천은 단순 모멘텀 분석 기반이며, 실제 투자 결정의 참고용으로만
       사용하세요.
-    </p>
-    <p class="cache-hint">
-      💡 캐시 유효 시간: 5분 | "새로고침" = 캐시 사용 | "강제" = API 호출
     </p>
   </footer>
 </div>

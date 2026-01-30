@@ -2,8 +2,6 @@
   export let lastUpdated = null;
   export let isLoading = false;
   export let onRefresh = () => {};
-  export let onForceRefresh = () => {};
-  export let cacheInfo = {};
 
   function formatTime(date) {
     if (!date) return "-";
@@ -16,10 +14,6 @@
       second: "2-digit",
     });
   }
-
-  // 캐시 상태 요약
-  $: cacheCount = Object.keys(cacheInfo).length;
-  $: validCacheCount = Object.values(cacheInfo).filter((c) => c.valid).length;
 </script>
 
 <header class="dashboard-header">
@@ -33,11 +27,6 @@
     </div>
 
     <div class="info-section">
-      <div class="cache-info" title="캐시 상태">
-        <span class="cache-icon">📦</span>
-        <span class="cache-text">{validCacheCount}/{cacheCount} 캐시</span>
-      </div>
-
       <div class="update-info">
         <span class="update-label">마지막 업데이트</span>
         <span class="update-time">{formatTime(lastUpdated)}</span>
@@ -48,22 +37,11 @@
           class="refresh-btn"
           on:click={onRefresh}
           disabled={isLoading}
-          aria-label="새로고침 (캐시 사용)"
-          title="캐시가 유효하면 캐시 데이터 사용"
+          aria-label="새로고침"
+          title="데이터 새로고침"
         >
           <span class="refresh-icon" class:spinning={isLoading}>🔄</span>
           <span class="refresh-text">{isLoading ? "로딩..." : "새로고침"}</span>
-        </button>
-
-        <button
-          class="force-refresh-btn"
-          on:click={onForceRefresh}
-          disabled={isLoading}
-          aria-label="강제 새로고침"
-          title="캐시 무시하고 API 호출"
-        >
-          <span class="refresh-icon" class:spinning={isLoading}>⚡</span>
-          <span class="refresh-text">강제</span>
         </button>
       </div>
     </div>
@@ -132,23 +110,6 @@
     display: flex;
     align-items: center;
     gap: 1.25rem;
-  }
-
-  .cache-info {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.5rem 0.75rem;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    border-radius: 8px;
-    color: #10b981;
-    font-size: 0.8rem;
-    font-weight: 500;
-  }
-
-  .cache-icon {
-    font-size: 0.9rem;
   }
 
   .update-info {
