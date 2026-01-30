@@ -25,6 +25,7 @@ export const MOCK_DATA = {
   usd: {
     id: 'usd',
     name: 'USD/KRW',
+    symbol: 'USDKRW=X',
     nameKr: '달러',
     icon: '💵',
     price: 1435.20,
@@ -38,6 +39,7 @@ export const MOCK_DATA = {
   gold: {
     id: 'gold',
     name: 'Gold',
+    symbol: 'GC=F',
     nameKr: '금',
     icon: '🪙',
     price: 125160,
@@ -51,6 +53,7 @@ export const MOCK_DATA = {
   sp500: {
     id: 'sp500',
     name: 'S&P 500',
+    symbol: 'SPY',
     nameKr: 'S&P 500',
     icon: '📈',
     price: 8672340,
@@ -64,6 +67,7 @@ export const MOCK_DATA = {
   kospi: {
     id: 'kospi',
     name: 'KOSPI',
+    symbol: '^KS11',
     nameKr: 'KOSPI 지수',
     icon: '📊',
     price: 2523.45,
@@ -77,6 +81,7 @@ export const MOCK_DATA = {
   nasdaq: {
     id: 'nasdaq',
     name: 'NASDAQ',
+    symbol: '^IXIC',
     nameKr: '나스닥 지수',
     icon: '💻',
     price: 17956.23,

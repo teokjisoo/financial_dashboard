@@ -208,7 +208,7 @@ async function fetchGoldPrice(usdRate) {
     // 2. Yahoo Fallback (XAUUSD=X)
     if (usdRate) {
         try {
-            const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/XAUUSD=X?interval=1d&range=2d`;
+            const yUrl = `https://query1.finance.yahoo.com/v8/finance/chart/GC=F?interval=1d&range=2d`;
             const res = await fetch(yUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } });
             const yData = await res.json();
             const meta = yData.chart?.result?.[0]?.meta;
@@ -351,7 +351,7 @@ app.get('/api/data/:id', async (req, res) => {
                     changePercent: goldData.changePercent,
                     source: goldData.source
                 };
-                chartSymbol = 'XAUUSD=X'; // Chart in USD (trend only)
+                chartSymbol = 'GC=F'; // Chart in USD (trend only)
             }
             break;
 

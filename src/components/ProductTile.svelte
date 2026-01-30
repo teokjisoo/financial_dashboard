@@ -111,7 +111,11 @@
           🕐 {formatLastUpdated(lastUpdatedTime)}
         </span>
       </div>
-      <span class="product-name-kr">{product.nameKr}</span>
+      <div class="product-subtitle">
+        <span class="product-symbol">{product.symbol}</span>
+        <span class="divider">•</span>
+        <span class="product-name-kr">{product.nameKr}</span>
+      </div>
     </div>
   </header>
 
@@ -418,10 +422,32 @@
     border-radius: 4px;
   }
 
-  .product-name-kr {
+  .product-subtitle {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin-top: 0.2rem;
     font-size: 0.85rem;
     color: #94a3b8;
-    margin-top: 0.2rem;
+  }
+
+  .product-symbol {
+    /* font-family removed to match global style */
+    background: rgba(255, 255, 255, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #cbd5e1;
+    font-weight: 500;
+  }
+
+  .divider {
+    color: #475569;
+    font-size: 0.7rem;
+  }
+
+  .product-name-kr {
+    color: #94a3b8;
   }
 
   .tile-body {

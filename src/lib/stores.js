@@ -21,11 +21,11 @@ const PRODUCT_LINKS = {
 
 // 상품 기본 정보 (캐시가 없을 때 템플릿으로 사용)
 const PRODUCT_TEMPLATES = {
-    usd: { id: 'usd', name: 'USD/KRW', nameKr: '달러', icon: '💵', unit: '원', category: 'currency' },
-    gold: { id: 'gold', name: 'Gold', nameKr: '금', icon: '🪙', unit: '원/g', category: 'commodity' },
-    sp500: { id: 'sp500', name: 'S&P 500', nameKr: 'S&P 500', icon: '📈', unit: '원', category: 'index' },
-    kospi: { id: 'kospi', name: 'KOSPI', nameKr: 'KOSPI 지수', icon: '📊', unit: 'pt', category: 'index' },
-    nasdaq: { id: 'nasdaq', name: 'NASDAQ', nameKr: '나스닥 지수', icon: '💻', unit: 'pt', category: 'index' }
+    usd: { id: 'usd', name: 'USD/KRW', symbol: 'USDKRW=X', nameKr: '달러', icon: '💵', unit: '원', category: 'currency' },
+    gold: { id: 'gold', name: 'Gold', symbol: 'GC=F', nameKr: '금', icon: '🪙', unit: '원/g', category: 'commodity' },
+    sp500: { id: 'sp500', name: 'S&P 500', symbol: 'SPY', nameKr: 'S&P 500', icon: '📈', unit: '원', category: 'index' },
+    kospi: { id: 'kospi', name: 'KOSPI', symbol: '^KS11', nameKr: 'KOSPI 지수', icon: '📊', unit: 'pt', category: 'index' },
+    nasdaq: { id: 'nasdaq', name: 'NASDAQ', symbol: '^IXIC', nameKr: '나스닥 지수', icon: '💻', unit: 'pt', category: 'index' }
 };
 
 // 추천 정보가 포함된 상품 목록
