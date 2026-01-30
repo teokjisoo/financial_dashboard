@@ -32,7 +32,8 @@ const PRODUCT_TEMPLATES = {
 export const productsWithRecommendation = derived(products, $products => {
     return $products.map(product => ({
         ...product,
-        recommendation: getRecommendation(product.changePercent || 0)
+        // 주봉 데이터가 없으면 빈 배열 전달 -> Neutral 반환됨
+        recommendation: getRecommendation(product.candles || [], product.price)
     }));
 });
 

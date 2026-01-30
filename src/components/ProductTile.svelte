@@ -161,11 +161,180 @@
     >
       <span class="badge-icon">{product.recommendation.icon}</span>
       <span class="badge-label">{product.recommendation.label}</span>
+
+      {#if product.recommendation.details}
+        <div class="tooltip">
+          <div class="tooltip-header">주봉 분석 상세</div>
+          <div class="tooltip-row">
+            <div class="tooltip-label-group">
+              <span class="tooltip-label">SMA</span>
+              <span class="tooltip-sub-label"
+                >({product.recommendation.details.values.sma10}/{product
+                  .recommendation.details.values.sma40})</span
+              >
+            </div>
+            <span
+              class="tooltip-value"
+              data-status={product.recommendation.details.sma}
+              >{product.recommendation.details.sma}</span
+            >
+          </div>
+          <div class="tooltip-row">
+            <div class="tooltip-label-group">
+              <span class="tooltip-label">MACD</span>
+              <span class="tooltip-sub-label"
+                >({product.recommendation.details.values.macd})</span
+              >
+            </div>
+            <span
+              class="tooltip-value"
+              data-status={product.recommendation.details.macd}
+              >{product.recommendation.details.macd}</span
+            >
+          </div>
+          <div class="tooltip-row">
+            <div class="tooltip-label-group">
+              <span class="tooltip-label">RSI</span>
+              <span class="tooltip-sub-label"
+                >({product.recommendation.details.values.rsi})</span
+              >
+            </div>
+            <span
+              class="tooltip-value"
+              data-status={product.recommendation.details.rsi}
+              >{product.recommendation.details.rsi}</span
+            >
+          </div>
+        </div>
+      {/if}
     </div>
   </footer>
 </div>
 
 <style>
+  /* Tooltip Styles */
+  .tooltip {
+    position: absolute;
+    bottom: 120%; /* Badge 위쪽 */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 200px; /* Width increased for values */
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 1rem;
+    color: #f1f5f9;
+    font-size: 0.85rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 100;
+    pointer-events: none;
+    backdrop-filter: blur(8px);
+  }
+
+  /* Tooltip Arrow */
+  .tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
+  }
+
+  .recommendation-badge {
+    position: relative; /* Tooltip positioning context */
+    /* ... existing styles ... */
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 12px;
+    background: var(--badge-bg);
+    border: 1px solid var(--badge-color);
+    color: var(--badge-color);
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    cursor: help; /* 커서 변경 */
+  }
+
+  /* Show tooltip on hover */
+  .recommendation-badge:hover .tooltip {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .tooltip-header {
+    font-size: 0.75rem;
+    color: #64748b;
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .tooltip-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+
+  .tooltip-row:last-child {
+    margin-bottom: 0;
+  }
+
+  .tooltip-label-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    line-height: 1.2;
+  }
+
+  .tooltip-label {
+    color: #cbd5e1;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .tooltip-sub-label {
+    font-size: 0.7rem;
+    color: #64748b;
+    font-family: monospace;
+  }
+
+  .tooltip-value {
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+
+  /* Status Colors inside Tooltip */
+  .tooltip-value[data-status="아주 좋음"] {
+    color: #10b981;
+  }
+  .tooltip-value[data-status="좋음"] {
+    color: #34d399;
+  }
+  .tooltip-value[data-status="보통"] {
+    color: #94a3b8;
+  }
+  .tooltip-value[data-status="나쁨"] {
+    color: #fb923c;
+  }
+  .tooltip-value[data-status="아주 나쁨"] {
+    color: #ef4444;
+  }
+  .tooltip-value[data-status="좋음 (과열)"] {
+    color: #f472b6;
+  } /* Pink for Overbought */
+
   .product-tile {
     background: rgba(255, 255, 255, 0.05);
     backdrop-filter: blur(20px);
@@ -176,7 +345,7 @@
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     position: relative;
-    overflow: hidden;
+    overflow: visible; /* VISIBLE to allow tooltip to protrude */
   }
 
   .product-tile::before {

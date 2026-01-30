@@ -45,7 +45,8 @@ function getNextGoldApiKey() {
 // ============================================
 
 const cache = {};
-const CACHE_DURATION = 5 * 60 * 1000; // 5분
+const CACHE_DURATION = 5 * 60 * 1000; // 5분 (실시간 데이터)
+const WEEKLY_CACHE_DURATION = 24 * 60 * 60 * 1000; // 24시간 (주봉 데이터)
 const CACHE_FILE = 'cache.json';
 
 // Load cache from disk on startup
@@ -59,10 +60,9 @@ if (fs.existsSync(CACHE_FILE)) {
     }
 }
 
-
-function getFromCache(key) {
+function getFromCache(key, duration = CACHE_DURATION) {
     const item = cache[key];
-    if (item && Date.now() - item.timestamp < CACHE_DURATION) {
+    if (item && Date.now() - item.timestamp < duration) {
         return item.data;
     }
     return null;
@@ -85,6 +85,47 @@ function saveToCache(key, data) {
 // ============================================
 // Helper Functions (Fetchers)
 // ============================================
+
+// Weekly Candle Fetcher
+async function fetchWeeklyCandles(symbol) {
+    // Yahoo Finance: interval=1wk, range=2y (약 104개 데이터)
+    // symbol 예: SPY, ^KS11, GC=F (금), KRW=X (환율)
+    const url = `https://query1.finance.yahoo.com/v8/finance/chart/${encodeURIComponent(symbol)}?interval=1wk&range=2y`;
+    try {
+        const response = await fetch(url, { headers: { 'User-Agent': 'Mozilla/5.0' } });
+        const data = await response.json();
+        const result = data.chart?.result?.[0];
+
+        if (!result) {
+            console.log(`No weekly candle result for ${symbol}`);
+            return [];
+        }
+
+        const timestamp = result.timestamp;
+        const indicators = result.indicators?.quote?.[0];
+
+        if (!timestamp || !indicators) return [];
+
+        const { open, high, low, close } = indicators;
+        const candles = [];
+
+        for (let i = 0; i < timestamp.length; i++) {
+            if (close[i] !== null && close[i] !== undefined) {
+                candles.push({
+                    date: new Date(timestamp[i] * 1000).toISOString().split('T')[0],
+                    open: open[i],
+                    high: high[i],
+                    low: low[i],
+                    close: close[i]
+                });
+            }
+        }
+        return candles;
+    } catch (e) {
+        console.error(`Weekly Candle fetch error for ${symbol}:`, e.message);
+    }
+    return [];
+}
 
 // Chart History Fetcher (Yahoo)
 async function fetchChartData(symbol) {
@@ -367,6 +408,23 @@ app.get('/api/data/:id', async (req, res) => {
             result.history = history || [];
         }
 
+        // Fetch Weekly Candles (Optimized with separate cache)
+        if (chartSymbol) {
+            const candleKey = `candles_${chartSymbol}`;
+            let candles = getFromCache(candleKey, WEEKLY_CACHE_DURATION);
+
+            if (!candles) {
+                // If forceRefresh, we still might want to use cached candles if they are fresh enough
+                // unless it's explicitly requested. But for now, we only fetch if expired.
+                candles = await fetchWeeklyCandles(chartSymbol);
+                if (candles.length > 0) {
+                    saveToCache(candleKey, candles); // This will save with current timestamp
+                }
+            }
+            result.candles = candles || [];
+        }
+
+        saveToCache(cacheKey, result);
         saveToCache(cacheKey, result);
         return res.json(result);
     }

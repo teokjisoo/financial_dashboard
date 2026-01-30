@@ -123,6 +123,7 @@ function mapToUI(id, data) {
     changePercent: data.changePercent,
     source: data.source || 'server',
     history: data.history || [],
+    candles: data.candles || [],
     isLive: true,
     lastUpdated: new Date().toISOString() // Or use server timestamp if provided
   };
