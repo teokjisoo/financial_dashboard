@@ -393,6 +393,22 @@ app.get('/api/data/:id', async (req, res) => {
                 chartSymbol = '^IXIC';
             }
             break;
+
+        default:
+            // Custom Symbol Handler
+            // Try to fetch as a stock symbol (using the ID as the symbol)
+            // Use Yahoo Fallback primarily for broad support
+            const customData = await fetchStock(id, id);
+            if (customData) {
+                result = {
+                    price: customData.price,
+                    previousPrice: customData.previousClose,
+                    changePercent: customData.changePercent,
+                    source: customData.source
+                };
+                chartSymbol = id;
+            }
+            break;
     }
 
     if (result) {

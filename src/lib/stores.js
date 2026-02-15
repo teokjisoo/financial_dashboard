@@ -58,7 +58,13 @@ function updateCacheInfo() {
 
 // 캐시에서 마지막 저장된 데이터로 초기화 (mock 사용 안함)
 function initializeFromCache() {
-    const productIds = ['usd', 'gold', 'sp500', 'kospi', 'nasdaq'];
+    const defaultIds = ['usd', 'gold', 'sp500', 'kospi', 'nasdaq'];
+    // 캐시된 커스텀 종목 불러오기
+    const savedCustom = localStorage.getItem('custom_products');
+    const customIds = savedCustom ? JSON.parse(savedCustom) : [];
+
+    // 중복 제거
+    const productIds = [...new Set([...defaultIds, ...customIds])];
     const cachedProducts = [];
     const TROY_OZ_TO_GRAM = 31.1035;
 
@@ -72,8 +78,23 @@ function initializeFromCache() {
     };
 
     for (const id of productIds) {
-        const template = PRODUCT_TEMPLATES[id];
-        const cached = cache[cacheKeys[id]];
+        let template = PRODUCT_TEMPLATES[id];
+
+        // 커스텀 종목 템플릿 생성
+        if (!template) {
+            template = {
+                id: id,
+                name: id,
+                symbol: id,
+                nameKr: id, // 커스텀 종목은 ID를 이름으로 사용
+                icon: '🔹',
+                unit: 'USD',
+                category: 'stock',
+                isCustom: true // 커스텀 플래그
+            };
+        }
+
+        const cached = cache[cacheKeys[id] || `product_${id}`] || cache[`product_${id}`];
 
         if (cached && cached.data) {
             // 캐시된 실제 데이터가 있으면 사용
@@ -157,10 +178,21 @@ export async function loadProducts(forceRefresh = false) {
             loadingStatus.set(`📦 캐시 확인 중... (${cacheDurationMin}분 유효)`);
         }
 
-        await fetchAllProductsSequentially((updatedProduct) => {
+        // 로드할 전체 ID 목록 생성
+        const defaultIds = ['usd', 'gold', 'sp500', 'kospi', 'nasdaq'];
+        const savedCustom = localStorage.getItem('custom_products');
+        const customIds = savedCustom ? JSON.parse(savedCustom) : [];
+        const allIds = [...new Set([...defaultIds, ...customIds])];
+
+        await fetchAllProductsSequentially(allIds, (updatedProduct) => {
             // 링크와 업데이트 시간 추가
-            updatedProduct.link = PRODUCT_LINKS[updatedProduct.id];
+            updatedProduct.link = PRODUCT_LINKS[updatedProduct.id] || `https://finance.yahoo.com/quote/${updatedProduct.id}`;
             updatedProduct.lastUpdated = new Date();
+            // 커스텀 종목 표시
+            if (!PRODUCT_TEMPLATES[updatedProduct.id]) {
+                updatedProduct.isCustom = true;
+                updatedProduct.nameKr = updatedProduct.id; // Fallback
+            }
             updateProduct(updatedProduct);
             lastUpdated.set(new Date());
             updateCacheInfo();
@@ -188,4 +220,57 @@ export async function clearCacheAndRefresh() {
     // 캐시 클리어 후 빈 데이터로 초기화
     products.set(initializeFromCache());
     await loadProducts(true);
+}
+
+// 종목 추가 함수
+export function addProduct(symbol) {
+    if (!symbol) return;
+    const upperSymbol = symbol.toUpperCase().trim();
+
+    // 이미 존재하는지 확인
+    const currentList = get(products);
+    if (currentList.find(p => p.id === upperSymbol)) {
+        alert('이미 존재하는 종목입니다.');
+        return;
+    }
+
+    // localStorage에 저장
+    const savedCustom = localStorage.getItem('custom_products');
+    const customIds = savedCustom ? JSON.parse(savedCustom) : [];
+    if (!customIds.includes(upperSymbol)) {
+        customIds.push(upperSymbol);
+        localStorage.setItem('custom_products', JSON.stringify(customIds));
+    }
+
+    // 즉시 스토어에 추가 (로딩 상태)
+    const newProduct = {
+        id: upperSymbol,
+        name: upperSymbol,
+        symbol: upperSymbol,
+        nameKr: upperSymbol,
+        icon: '🔹',
+        unit: 'USD',
+        category: 'stock',
+        isCustom: true,
+        price: null,
+        changePercent: 0,
+        isLive: false
+    };
+    updateProduct(newProduct);
+
+    // 화면 갱신 (새로고침)
+    loadProducts(false);
+}
+
+// 종목 삭제 함수
+export function removeProduct(id) {
+    const savedCustom = localStorage.getItem('custom_products');
+    let customIds = savedCustom ? JSON.parse(savedCustom) : [];
+
+    // 목록에서 제거
+    customIds = customIds.filter(cid => cid !== id);
+    localStorage.setItem('custom_products', JSON.stringify(customIds));
+
+    // 스토어에서 제거
+    products.update(current => current.filter(p => p.id !== id));
 }

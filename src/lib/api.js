@@ -120,7 +120,22 @@ export async function fetchProductData(productId, usdExchangeRate, onUpdate, for
 }
 
 function mapToUI(id, data) {
-  const template = MOCK_DATA[id];
+  let template = MOCK_DATA[id];
+
+  // If new custom product (not in default MOCK_DATA)
+  if (!template) {
+    template = {
+      id: id,
+      name: id,
+      symbol: id,
+      nameKr: id, // Default to using ID as name for custom products
+      icon: '🔹', // Generic icon
+      unit: getUnitForProduct(id), // Dynamic unit
+      category: 'stock',
+      link: `https://finance.yahoo.com/quote/${id}`
+    };
+  }
+
   return {
     ...template,
     price: data.price,
@@ -135,9 +150,7 @@ function mapToUI(id, data) {
 }
 
 // 기존에는 순차 호출이었지만, 서버 캐싱 덕분에 병렬 호출로 변경
-export async function fetchAllProductsSequentially(onUpdate, forceRefresh = false) {
-  const ids = ['usd', 'gold', 'sp500', 'kospi', 'nasdaq'];
-
+export async function fetchAllProductsSequentially(ids, onUpdate, forceRefresh = false) {
   // 병렬 실행
   await Promise.all(ids.map(id => fetchProductData(id, 0, onUpdate, forceRefresh)));
 }

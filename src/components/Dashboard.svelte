@@ -1,6 +1,7 @@
 <script>
   import ProductTile from "./ProductTile.svelte";
   import Header from "./Header.svelte";
+  import AddProductModal from "./AddProductModal.svelte";
   import {
     productsWithRecommendation,
     isLoading,
@@ -10,6 +11,7 @@
     cacheInfo,
     loadProducts,
     clearCacheAndRefresh,
+    addProduct,
   } from "../lib/stores.js";
   import { onMount } from "svelte";
 
@@ -21,7 +23,29 @@
   function handleRefresh() {
     loadProducts(true);
   }
+
+  // 모달 상태 관리
+  let isModalOpen = false;
+
+  function openModal() {
+    isModalOpen = true;
+  }
+
+  function closeModal() {
+    isModalOpen = false;
+  }
+
+  function handleAddProduct(event) {
+    const symbol = event.detail;
+    addProduct(symbol);
+  }
 </script>
+
+<AddProductModal
+  isOpen={isModalOpen}
+  on:close={closeModal}
+  on:add={handleAddProduct}
+/>
 
 <div class="dashboard-container">
   <Header
@@ -62,6 +86,12 @@
       {#each $productsWithRecommendation as product (product.id)}
         <ProductTile {product} />
       {/each}
+
+      <!-- 추가하기 타일 -->
+      <button class="add-tile-btn" on:click={openModal}>
+        <div class="add-icon">+</div>
+        <span class="add-text">종목 추가</span>
+      </button>
     {/if}
   </main>
 
@@ -232,5 +262,39 @@
       grid-template-columns: 1fr;
       gap: 1rem;
     }
+  }
+
+  /* Add Tile Button Styles */
+  .add-tile-btn {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 200px; /* Approximate height of other tiles */
+    color: #94a3b8;
+  }
+
+  .add-tile-btn:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(56, 189, 248, 0.5);
+    color: #38bdf8;
+    transform: translateY(-4px);
+  }
+
+  .add-icon {
+    font-size: 3rem;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .add-text {
+    font-size: 1rem;
+    font-weight: 500;
   }
 </style>
